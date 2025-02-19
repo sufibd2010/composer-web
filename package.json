@@ -88,6 +88,11 @@
         "command": "web-preview.sendScreenshot",
         "title": "Send Tab Screenshot to Composer",
         "category": "Composer Web"
+      },
+      {
+        "command": "web-preview.copyContext",
+        "title": "Copy Context to Chat",
+        "category": "Composer Web"
       }
     ],
     "keybindings": [

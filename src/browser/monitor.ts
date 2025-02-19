@@ -15,6 +15,7 @@ export class BrowserMonitor extends EventEmitter {
   private consoleLogs: BrowserLog[] = [];
   private networkLogs: NetworkRequest[] = [];
   private statusBarItem: vscode.StatusBarItem;
+  private copyContextStatusBarItem: vscode.StatusBarItem;
   private isConnected: boolean = false;
   private configManager: ConfigManager;
   private disconnectEmitter = new vscode.EventEmitter<void>();
@@ -24,9 +25,21 @@ export class BrowserMonitor extends EventEmitter {
     super();
     this.statusBarItem = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Right,
-      100
+      0  // Highest priority for right alignment
     );
     this.statusBarItem.command = "web-preview.smartCapture";
+    this.statusBarItem.show();
+    
+    this.copyContextStatusBarItem = vscode.window.createStatusBarItem(
+      vscode.StatusBarAlignment.Right,
+      1  // Just next to the connect button
+    );
+    this.copyContextStatusBarItem.command = "web-preview.copyContext";
+    this.copyContextStatusBarItem.text = "$(symbol-keyword) Copy Context";  // Using a different icon
+    this.copyContextStatusBarItem.tooltip = "Copy current context to chat (Cmd+L)";
+    this.copyContextStatusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');  // Make it stand out
+    this.copyContextStatusBarItem.show();
+    
     this.configManager = ConfigManager.getInstance();
     this.updateStatusBar();
   }
@@ -48,6 +61,7 @@ export class BrowserMonitor extends EventEmitter {
       ? `Connected to: ${this.activePage?.info.url}`
       : "Click to connect to a browser tab";
     this.statusBarItem.show();
+    this.copyContextStatusBarItem.show();  // Always show the copy context button
   }
 
   public async connect(): Promise<void> {
@@ -288,6 +302,7 @@ export class BrowserMonitor extends EventEmitter {
   public dispose() {
     this.disconnect();
     this.statusBarItem.dispose();
+    this.copyContextStatusBarItem.dispose();
   }
 
   public async getPageForScreenshot(): Promise<puppeteer.Page | null> {
